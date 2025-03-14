@@ -36,18 +36,6 @@ resource "random_string" "random" {
   upper   = false
 }
 
-resource "azurerm_storage_account" "storage" {
-  name                     = "st${var.product_name}${var.environment}${random_string.random.result}"
-  resource_group_name      = azurerm_resource_group.rg.name
-  location                 = azurerm_resource_group.rg.location
-  account_tier             = "Standard" # Can be parametrized later
-  account_replication_type = "LRS"      # Can be parametrized later
-
-  tags = {
-    Environment = var.environment
-  }
-}
-
 resource "azurerm_virtual_network" "vnet" {
   name                = "vnet-${var.product_name}-${var.environment}-001"
   resource_group_name = azurerm_resource_group.rg.name
@@ -110,10 +98,11 @@ resource "azurerm_subnet_network_security_group_association" "snet-nsg-private" 
 }
 
 resource "azurerm_databricks_workspace" "adb" {
-  name                = "adb-${var.product_name}-${var.environment}-001"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-  sku                 = "premium"
+  name                        = "adb-${var.product_name}-${var.environment}-001"
+  resource_group_name         = azurerm_resource_group.rg.name
+  location                    = azurerm_resource_group.rg.location
+  sku                         = "premium"
+  managed_resource_group_name = "rg-${var.product_name}-${var.environment}-adb-001"
 
   custom_parameters {
     no_public_ip                                         = var.no_public_ip
