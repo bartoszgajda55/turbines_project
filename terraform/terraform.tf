@@ -18,9 +18,20 @@ terraform {
   }
 }
 
+locals {
+  dbx_account_id = "29e51d61-8494-44d4-91c7-afa5d7aee854"
+}
+
 provider "azurerm" {
   features {}
 }
+
+provider "databricks" {
+  alias      = "account"
+  host       = "https://accounts.azuredatabricks.net"
+  account_id = local.dbx_account_id
+}
+
 resource "azurerm_resource_group" "rg" {
   name     = "rg-${var.product_name}-${var.environment}-001"
   location = var.location
@@ -112,4 +123,17 @@ resource "azurerm_databricks_workspace" "adb" {
     public_subnet_network_security_group_association_id  = azurerm_subnet_network_security_group_association.snet-nsg-public.id
     private_subnet_network_security_group_association_id = azurerm_subnet_network_security_group_association.snet-nsg-private.id
   }
+}
+
+resource "databricks_metastore" "metastore" {
+  provider      = databricks.account
+  name          = "metastore_azure_northeurope"
+  force_destroy = true
+  region        = azurerm_resource_group.rg.location
+}
+
+resource "databricks_metastore_assignment" "metastore_assignment" {
+  provider     = databricks.account
+  workspace_id = azurerm_databricks_workspace.adb.workspace_id
+  metastore_id = databricks_metastore.metastore.id
 }
