@@ -6,9 +6,7 @@ authors = [
     { name = "Bartosz Gajda", email = "bartoszgajda55@outlook.com" }
 ]
 requires-python = ">=3.12.3"
-dependencies = [
-    "databricks-sdk>=0.46.0",
-]
+dependencies = []
 
 [build-system]
 requires = ["hatchling"]

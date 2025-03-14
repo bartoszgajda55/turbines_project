@@ -408,9 +408,6 @@ wheels = [
 name = "turbines"
 version = "0.1.0"
 source = { editable = "." }
-dependencies = [
-    { name = "databricks-sdk" },
-]
 
 [package.dev-dependencies]
 dev = [
@@ -419,7 +416,6 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "databricks-sdk", specifier = ">=0.46.0" }]
 
 [package.metadata.requires-dev]
 dev = [
