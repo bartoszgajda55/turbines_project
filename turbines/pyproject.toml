@@ -2,13 +2,20 @@
 name = "turbines"
 version = "0.1.0"
 description = "Add your description here"
-readme = "README.md"
 authors = [
     { name = "Bartosz Gajda", email = "bartoszgajda55@outlook.com" }
 ]
-requires-python = ">=3.13"
-dependencies = []
+requires-python = ">=3.12.3"
+dependencies = [
+    "databricks-sdk>=0.46.0",
+]
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "databricks-connect>=16.2.0",
+    "pytest>=8.3.5",
+]

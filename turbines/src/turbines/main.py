@@ -12,7 +12,7 @@ def get_spark() -> SparkSession:
     try:
         from databricks.connect import DatabricksSession
 
-        return DatabricksSession.builder.getOrCreate()
+        return DatabricksSession.builder.clusterId(clusterId="0314-194013-7dfx96xt").getOrCreate()
     except ImportError:
         return SparkSession.builder.getOrCreate()
 
