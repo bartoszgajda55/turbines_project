@@ -30,3 +30,5 @@ jobs:
         working-directory: ./turbines
         run: |
           uv run pytest tests/ -v
+        env:
+          INTERACTIVE_CLUSTER_ID: ${{ vars.INTERACTIVE_CLUSTER_ID }}
