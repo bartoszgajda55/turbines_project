@@ -23,6 +23,7 @@ jobs:
           enable-cache: true
 
       - name: Install the project
+        working-directory: ./turbines
         run: uv sync --all-extras --dev
 
       - name: Run tests
