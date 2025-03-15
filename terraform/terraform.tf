@@ -9,17 +9,17 @@ terraform {
       version = "1.70.0"
     }
   }
-  backend "azurerm" {
+  backend "azurerm" { # Resource for the backend has to be created manually (unless starting with a local and then migrating)
     resource_group_name  = "rg-platform-001"
     storage_account_name = "bg55tfstate"
     container_name       = "tfstate"
     key                  = "terraform.tfstate"
-    use_azuread_auth     = true
+    use_azuread_auth     = true # Access Keys / SAS tokens disabled, for security reasons
   }
 }
 
 locals {
-  dbx_account_id = "29e51d61-8494-44d4-91c7-afa5d7aee854"
+  dbx_account_id = "29e51d61-8494-44d4-91c7-afa5d7aee854" # Assumes an Account exists - if creating from scratch, then this value will be present only after first Workspace will be provisioned.
 }
 
 provider "azurerm" {
@@ -32,6 +32,7 @@ provider "databricks" {
   account_id = local.dbx_account_id
 }
 
+# Resource Group
 resource "azurerm_resource_group" "rg" {
   name     = "rg-${var.product_name}-${var.environment}-001"
   location = var.location
@@ -47,6 +48,7 @@ resource "random_string" "random" {
   upper   = false
 }
 
+# Databricks Workspace
 resource "azurerm_virtual_network" "vnet" {
   name                = "vnet-${var.product_name}-${var.environment}-001"
   resource_group_name = azurerm_resource_group.rg.name
@@ -125,15 +127,108 @@ resource "azurerm_databricks_workspace" "adb" {
   }
 }
 
+# Databricks Unity Catalog
 resource "databricks_metastore" "metastore" {
   provider      = databricks.account
   name          = "metastore_azure_northeurope"
-  force_destroy = true
   region        = azurerm_resource_group.rg.location
+  owner         = "G_DATABRICKS_METASTORE_OWNERS"
+  force_destroy = true
 }
 
 resource "databricks_metastore_assignment" "metastore_assignment" {
   provider     = databricks.account
   workspace_id = azurerm_databricks_workspace.adb.workspace_id
   metastore_id = databricks_metastore.metastore.id
+}
+
+resource "azurerm_databricks_access_connector" "access_connector" {
+  name                = "ac_${var.product_name}_${var.environment}_001"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  identity {
+    type = "SystemAssigned"
+  }
+}
+
+resource "azurerm_storage_account" "sa" {
+  name                     = "sa${var.product_name}${var.environment}001"
+  resource_group_name      = azurerm_resource_group.rg.name
+  location                 = azurerm_resource_group.rg.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+  is_hns_enabled           = true
+}
+
+resource "azurerm_storage_container" "sc" {
+  name                  = "sc${var.product_name}${var.environment}001"
+  storage_account_name  = azurerm_storage_account.sa.name
+  container_access_type = "private"
+}
+
+resource "azurerm_role_assignment" "sa_rbac" {
+  scope                = azurerm_storage_account.sa.id
+  role_definition_name = "Storage Blob Data Contributor"
+  principal_id         = azurerm_databricks_access_connector.access_connector.identity[0].principal_id
+}
+
+resource "databricks_storage_credential" "sc" {
+  name          = "sc_${var.product_name}_${var.environment}_001"
+  force_destroy = true
+  force_update  = true
+  azure_managed_identity {
+    access_connector_id = azurerm_databricks_access_connector.access_connector.id
+  }
+  depends_on = [
+    databricks_metastore_assignment.metastore_assignment
+  ]
+}
+
+resource "databricks_grants" "sc_grants" {
+  storage_credential = databricks_storage_credential.sc.id
+  grant {
+    principal  = "account users"
+    privileges = ["CREATE_EXTERNAL_LOCATION"]
+  }
+}
+
+resource "databricks_external_location" "el" {
+  name            = "el_${var.product_name}_${var.environment}_001"
+  url             = "abfss://${azurerm_storage_container.sc.name}@${azurerm_storage_account.sa.name}.dfs.core.windows.net"
+  credential_name = databricks_storage_credential.sc.id
+  force_destroy   = true
+  force_update    = true
+  depends_on = [
+    databricks_storage_credential.sc
+  ]
+}
+
+resource "databricks_grants" "el_grants" {
+  external_location = databricks_external_location.el.id
+  grant {
+    principal  = "account users"
+    privileges = ["CREATE_MANAGED_STORAGE"]
+  }
+}
+
+resource "databricks_catalog" "dc" {
+  for_each     = { for catalog_name, catalog in var.catalogs : catalog_name => catalog }
+  name         = each.key
+  storage_root = "abfss://${azurerm_storage_container.sc.name}@${azurerm_storage_account.sa.name}.dfs.core.windows.net"
+  comment      = each.value.comment
+  depends_on   = [databricks_external_location.el]
+}
+
+resource "databricks_grants" "dc_grants" {
+  for_each = { for catalog_name, catalog in var.catalogs : catalog_name => catalog }
+  catalog  = each.key
+
+  dynamic "grant" {
+    for_each = { for principal, grants in each.value.grants : principal => grants }
+    content {
+      principal  = grant.key
+      privileges = grant.value
+    }
+  }
+  depends_on = [databricks_catalog.dc]
 }

@@ -23,3 +23,19 @@ variable "no_public_ip" {
   default     = true
   description = "Defines whether Secure Cluster Connectivity (No Public IP) should be enabled."
 }
+variable "catalogs" {
+  type = map(object({
+    grants  = map(list(string))
+    comment = string
+    schemas = map(object({
+      grants  = map(list(string))
+      comment = string
+      volumes = map(object({
+        grants  = map(list(string))
+        comment = string
+      }))
+    }))
+  }))
+  description = "Map of catalogs to be created"
+
+}
