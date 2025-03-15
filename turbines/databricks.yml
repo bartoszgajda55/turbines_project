@@ -5,6 +5,10 @@ bundle:
 include:
   - resources/*.yml
 
+variables:
+  wheel_path:
+    description: Path to .whl file containing the source code
+
 targets:
   dev:
     mode: development

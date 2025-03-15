@@ -48,9 +48,7 @@ jobs:
         run: |
           WHEEL_PATH=$(ls dist/*.whl)
           WHEEL_NAME=$(basename $WHEEL_PATH)
-          BUNDLE_VAR_wheel_path=${{ vars.DATABRICKS_WHEEL_VOLUME }}/$WHEEL_NAME
-          echo $BUNDLE_VAR_wheel_path
           databricks fs cp --overwrite "$WHEEL_PATH" "dbfs:${{ vars.DATABRICKS_WHEEL_VOLUME }}"
-          databricks bundle deploy --var="wheel_path=$BUNDLE_VAR_wheel_path"
+          databricks bundle deploy --var="wheel_path=${{ vars.DATABRICKS_WHEEL_VOLUME }}/$WHEEL_NAME"
         env:
           DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
