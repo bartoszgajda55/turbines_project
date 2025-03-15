@@ -47,3 +47,5 @@ jobs:
         run: |
           WHEEL_FILE=$(ls dist/*.whl)
           databricks fs cp --overwrite "$WHEEL_FILE" "${{ vars.DATABRICKS_WHEEL_VOLUME }}"
+        env:
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
