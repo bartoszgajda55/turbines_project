@@ -32,3 +32,5 @@ jobs:
           uv run pytest tests/ -v
         env:
           INTERACTIVE_CLUSTER_ID: ${{ vars.INTERACTIVE_CLUSTER_ID }}
+          DATABRICKS_HOST: ${{ vars.DATABRICKS_HOST }}
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
