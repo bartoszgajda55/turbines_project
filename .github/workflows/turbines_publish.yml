@@ -47,13 +47,9 @@ jobs:
         working-directory: ./turbines
         run: |
           WHEEL_FILE=$(ls dist/*.whl)
+          BUNDLE_VAR_wheel_path=${{ vars.DATABRICKS_WHEEL_VOLUME }}/$WHEEL_FILE
+          echo $BUNDLE_VAR_wheel_path
           databricks fs cp --overwrite "$WHEEL_FILE" "dbfs:${{ vars.DATABRICKS_WHEEL_VOLUME }}"
           databricks bundle deploy --var="wheel_path=${{ vars.DATABRICKS_WHEEL_VOLUME }}/$WHEEL_FILE"
-        env:
-          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
-
-      - name: Deploy bundle to Databricks
-        working-directory: ./turbines
-        run: databricks bundle deploy  -va
         env:
           DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
