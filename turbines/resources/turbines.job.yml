@@ -10,9 +10,6 @@ resources:
 
       tasks:
         - task_key: main_task
-          depends_on:
-            - task_key: notebook_task
-
           job_cluster_key: job_cluster
           python_wheel_task:
             package_name: turbines
