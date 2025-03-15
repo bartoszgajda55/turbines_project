@@ -6,7 +6,9 @@ authors = [
     { name = "Bartosz Gajda", email = "bartoszgajda55@outlook.com" }
 ]
 requires-python = ">=3.12.3"
-dependencies = []
+dependencies = [
+    "dotenv>=0.9.9",
+]
 
 [build-system]
 requires = ["hatchling"]

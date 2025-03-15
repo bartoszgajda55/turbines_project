@@ -232,3 +232,96 @@ resource "databricks_grants" "dc_grants" {
   }
   depends_on = [databricks_catalog.dc]
 }
+
+resource "databricks_schema" "sch" {
+  for_each = merge([
+    for catalog_name, catalog in var.catalogs :
+    {
+      for schema_name, schema in catalog.schemas :
+      "${catalog_name}-${schema_name}" => {
+        catalog_name = catalog_name,
+        schema_name  = schema_name
+        comment      = schema.comment
+      }
+    }
+  ]...)
+  catalog_name = each.value.catalog_name
+  name         = each.value.schema_name
+  comment      = each.value.comment
+  depends_on   = [databricks_catalog.dc]
+}
+
+resource "databricks_grants" "sch_grants" {
+  for_each = merge([
+    for catalog_name, catalog in var.catalogs :
+    {
+      for schema_name, schema in catalog.schemas :
+      "${catalog_name}-${schema_name}" => {
+        catalog_name = catalog_name,
+        schema_name  = schema_name
+        comment      = schema.comment
+      }
+    }
+  ]...)
+  schema = databricks_schema.sch[each.key].id
+  dynamic "grant" {
+    for_each = { for principal, grants in var.catalogs[each.value.catalog_name].schemas[each.value.schema_name].grants : principal => grants }
+    content {
+      principal  = grant.key
+      privileges = grant.value
+    }
+  }
+  depends_on = [databricks_schema.sch]
+}
+
+resource "databricks_volume" "vol" {
+  for_each = merge(flatten([
+    for catalog_name, catalog in var.catalogs : [
+      for schema_name, schema in catalog.schemas : [
+        for volume_name, volume in schema.volumes : {
+          "${catalog_name}-${schema_name}-${volume_name}" = {
+            catalog_name = catalog_name
+            schema_name  = schema_name
+            volume_name  = volume_name
+            comment      = volume.comment
+          }
+        }
+      ]
+    ]
+  ])...)
+  name         = each.value.volume_name
+  catalog_name = each.value.catalog_name
+  schema_name  = each.value.schema_name
+  volume_type  = "MANAGED"
+  comment      = each.value.comment
+  depends_on   = [databricks_schema.sch]
+}
+
+resource "databricks_grants" "vol_grants" {
+  for_each = merge(flatten([
+    for catalog_name, catalog in var.catalogs : [
+      for schema_name, schema in catalog.schemas : [
+        for volume_name, volume in schema.volumes : [
+          for principal, grants in volume.grants : {
+            "${catalog_name}-${schema_name}-${volume_name}" = {
+              catalog_name = catalog_name
+              schema_name  = schema_name
+              volume_name  = volume_name
+              principal    = principal
+              grants       = grants
+            }
+          }
+        ]
+      ]
+    ]
+  ])...)
+  volume = databricks_volume.vol[each.key].id
+  dynamic "grant" {
+    for_each = { for principal, grants in var.catalogs[each.value.catalog_name].schemas[each.value.schema_name].volumes[each.value.volume_name].grants : principal => grants }
+    content {
+      principal  = grant.key
+      privileges = grant.value
+    }
+  }
+  depends_on = [databricks_volume.vol]
+}
