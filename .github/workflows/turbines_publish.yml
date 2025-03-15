@@ -6,7 +6,8 @@ on:
       - main
 
 jobs:
-  test:
+  publish:
+    name: Turbines Publish
     runs-on: ubuntu-latest
 
     steps:
@@ -42,10 +43,17 @@ jobs:
         working-directory: ./turbines
         run: uv build
 
-      - name: Upload wheel to Databricks Volume
+      - name: Upload wheel to Databricks Volume and deploy Bundle
         working-directory: ./turbines
         run: |
           WHEEL_FILE=$(ls dist/*.whl)
-          databricks fs cp --overwrite "$WHEEL_FILE" "${{ vars.DATABRICKS_WHEEL_VOLUME }}"
+          databricks fs cp --overwrite "$WHEEL_FILE" "dbfs:${{ vars.DATABRICKS_WHEEL_VOLUME }}"
+          databricks bundle deploy --var="wheel_path=${{ vars.DATABRICKS_WHEEL_VOLUME }}/$WHEEL_FILE"
+        env:
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+
+      - name: Deploy bundle to Databricks
+        working-directory: ./turbines
+        run: databricks bundle deploy  -va
         env:
           DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}

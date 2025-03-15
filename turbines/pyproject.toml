@@ -1,7 +1,7 @@
 [project]
 name = "turbines"
 version = "0.2.0"
-description = "Add your description here"
+description = "This a Turbine project - Databricks-based Data Solution using the best Software Engineering practices"
 authors = [
     { name = "Bartosz Gajda", email = "bartoszgajda55@outlook.com" }
 ]
