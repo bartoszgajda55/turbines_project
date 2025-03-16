@@ -16,7 +16,11 @@ build-backend = "hatchling.build"
 
 [tool.hatch.version]
 source = "vcs"
-raw-options = { search_parent_directories = true }
+
+[tool.hatch.version.raw-options]
+version_scheme = "only-version"
+search_parent_directories = true
+local_scheme = "no-local-version"
 
 [dependency-groups]
 dev = [
