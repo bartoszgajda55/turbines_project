@@ -25,7 +25,7 @@ class CsvRepository(Repository):
         df.write.csv(path=self.path, header=self.header, **self.write_kwargs)
 
 class DeltaRepository(Repository):
-    def __init__(self, path: str, merge_condition: str):
+    def __init__(self, path: str, merge_condition: str = None):
         self.path = path
         self.merge_condition = merge_condition
 
@@ -43,7 +43,7 @@ class DeltaRepository(Repository):
         ).whenMatchedUpdateAll().whenNotMatchedInsertAll().execute()
 
 class TableRepository(Repository):
-    def __init__(self, qualified_name: str, merge_condition: str):
+    def __init__(self, qualified_name: str, merge_condition: str = None):
         self.qualified_name = qualified_name
         self.merge_condition = merge_condition
 
