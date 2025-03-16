@@ -50,7 +50,7 @@ jobs:
           WHEEL_PATH=$(ls dist/*.whl)
           WHEEL_NAME=$(basename $WHEEL_PATH)
           databricks fs cp --overwrite "$WHEEL_PATH" "dbfs:${{ vars.DATABRICKS_WHEEL_VOLUME }}"
-          eco "BASE_REF"
+          echo "BASE_REF"
           echo "${{github.base_ref}}"
           echo "REF"
           echo "${{github.ref}}"
