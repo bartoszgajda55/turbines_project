@@ -38,8 +38,8 @@ def raw_to_standardized():
     processor = RawToStandardized()
     processor.process(
         get_spark(),
-        CsvRepository(path=f"/Volumes/{catalog}/raw/input_turbines/*.csv", header=True), 
-        DeltaRepository(path=f"/Volumes/{catalog}/standardized/turbines")
+        CsvRepository(path=f"/Volumes/{catalog}/raw/input_turbines/*.csv", header=True, read_kwargs={"schema": "timestamp TIMESTAMP, turbine_id INT, wind_speed DOUBLE, wind_direction INT, power_output DOUBLE"}), 
+        DeltaRepository(path=f"/Volumes/{catalog}/standardized/turbines", merge_condition="existing.timestamp = new.timestamp AND existing.turbine_id = new.turbine_id")
     )
 
 def standardized_to_enriched():
@@ -48,7 +48,7 @@ def standardized_to_enriched():
     processor.process(
         get_spark(),
         DeltaRepository(path=f"/Volumes/{catalog}/standardized/turbines"),
-        TableRepository(qualified_name=f"{catalog}.enriched.turbines")
+        TableRepository(qualified_name=f"{catalog}.enriched.turbines", merge_condition="existing.timestamp = new.timestamp AND existing.turbine_id = new.turbine_id")
     )
 
 def enriched_to_curated():
@@ -57,5 +57,5 @@ def enriched_to_curated():
     processor.process(
         get_spark(),
         TableRepository(qualified_name=f"{catalog}.enriched.turbines"),
-        TableRepository(qualified_name=f"{catalog}.curated.turbines")
+        TableRepository(qualified_name=f"{catalog}.curated.turbines", merge_condition="existing.timestamp = new.timestamp AND existing.turbine_id = new.turbine_id")
     )

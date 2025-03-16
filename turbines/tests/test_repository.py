@@ -44,7 +44,7 @@ class TestDeltaRepository:
     def test_save(self, spark, delta_test_dir, test_id):
         # Given
         path = Path(delta_test_dir) / test_id / "output"
-        repository = DeltaRepository(path=path.as_posix())
+        repository = DeltaRepository(path=path.as_posix(), merge_condition="existing.timestamp = new.timestamp AND existing.turbine_id = new.turbine_id")
         sample_data = spark.createDataFrame(
             [
                 ("2021-01-01T00:00:00Z", 1, 10.0, 90, 100.0),
@@ -57,7 +57,11 @@ class TestDeltaRepository:
         output = repository.read(spark)
         # Then
         assert output.count() == 2
-        # Finally
+        # When
+        repository.save(sample_data)
+        output = repository.read(spark)
+        # Then
+        assert output.count() == 2  # No duplicates since MERGE is being used
 
 class TestTableRepository:
     def test_read(self, spark, table_test_dir):
@@ -71,7 +75,7 @@ class TestTableRepository:
 
     def test_save(self, spark, table_test_dir, test_id):
         # Given
-        repository = TableRepository(qualified_name=f"{table_test_dir}.{test_id}")
+        repository = TableRepository(qualified_name=f"{table_test_dir}.{test_id}", merge_condition="existing.timestamp = new.timestamp AND existing.turbine_id = new.turbine_id")
         sample_data = spark.createDataFrame(
             [
                 ("2021-01-01T00:00:00Z", 1, 10.0, 90, 100.0),
@@ -84,5 +88,10 @@ class TestTableRepository:
         output = repository.read(spark)
         # Then
         assert output.count() == 2
+        # When
+        repository.save(sample_data)
+        output = repository.read(spark)
+        # Then
+        assert output.count() == 2 # No duplicates since MERGE is being used
         # Finally
         spark.sql(f"DROP TABLE IF EXISTS {table_test_dir}.{test_id}")
