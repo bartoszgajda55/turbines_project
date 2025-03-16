@@ -10,7 +10,8 @@ resources:
 
       tasks:
         - task_key: raw_to_bronze
-          job_cluster_key: job_cluster
+          # job_cluster_key: job_cluster
+          existing_cluster_id: 0314-194013-7dfx96xt
           python_wheel_task:
             package_name: turbines
             entry_point: raw_to_standardized
@@ -22,7 +23,8 @@ resources:
         - task_key: bronze_to_silver
           depends_on:
             - task_key: raw_to_bronze
-          job_cluster_key: job_cluster
+          # job_cluster_key: job_cluster
+          existing_cluster_id: 0314-194013-7dfx96xt
           python_wheel_task:
             package_name: turbines
             entry_point: standardized_to_enriched
@@ -34,7 +36,8 @@ resources:
         - task_key: silver_to_gold
           depends_on:
             - task_key: bronze_to_silver
-          job_cluster_key: job_cluster
+          # job_cluster_key: job_cluster
+          existing_cluster_id: 0314-194013-7dfx96xt
           python_wheel_task:
             package_name: turbines
             entry_point: enriched_to_curated
