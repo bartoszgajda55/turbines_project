@@ -54,8 +54,8 @@ The data processing pipeline is triggered automatically through file arrival eve
 
 The system uses Databricks File Event Trigger to monitor data storage and trigger workflows automatically. When new files arrive in the monitored locations, the trigger initiates the processing pipeline, enabling real-time data ingestion with configurable batch windows for optimal performance.
 
-
-## 2. Infrastructure Setup
+## 2. Development and Test Setup
+### 2.1 Infrastructure Setup
 In order to start using this project, first some infrastructure will be needed. The basic ones for working has already been defined in the folder `terraform` and can be deployed using the following commands:
 ```sh
 terraform init
@@ -67,7 +67,7 @@ terraform apply --var-file=tfvars/dev.tfvars
 
 **Note:** the above commands will work if you are already logged in to Azure CLI and privileged enough to provision these resources. Additionally, the backend for the Terraform is configured to use Azure Storage - this you will have to create manually before running `init`, in order to successfully initalize it. 
 
-## 3. Development Setup
+### 2.2 Development Setup
 To work with Databricks Connect (for which this project has been setup), you will need to connect to Databricks, using command like:
 ```sh
 databricks auth login --host <host>
@@ -83,7 +83,7 @@ CATALOG=uc_catalog_dev_001
 First is the ID of cluster to which attach Spark Session - interactive cluster will do just fine.
 Second is for catalog on which code should be executed. Assumption taken is that there are separate catalogs per-env, so process isolation is done at this level.
 
-## 4. Using Tags to Publish DABs
+### 2.3 Using Tags to Publish DABs
 The DABs deployment has been automated with GitHub Action pipelines, which are triggered whenever an expected Git Tag is pushed to ref. You can deploy the DAB using the below commands:
 ```sh
 # On feature branch
@@ -98,3 +98,59 @@ git tag v0.3.0
 ```
 
 **Note:** when publishing tag on `main` branch, then the DABs will be deployed in `prod` mode.
+
+## 3. Sample Output Data
+### 3.1 Standardized Layer
+```
++-------------------+----------+----------+--------------+------------+
+|          timestamp|turbine_id|wind_speed|wind_direction|power_output|
++-------------------+----------+----------+--------------+------------+
+|2022-03-01 00:00:00|         1|      11.8|           169|         2.7|
+|2022-03-01 00:00:00|         2|      11.6|            24|         2.2|
+|2022-03-01 00:00:00|         3|      13.8|           335|         2.3|
+|2022-03-01 00:00:00|         4|      12.8|           238|         1.9|
+|2022-03-01 00:00:00|         5|      11.4|           103|         3.5|
+|2022-03-01 01:00:00|         1|      11.6|           152|         4.4|
+|2022-03-01 01:00:00|         2|      12.8|            35|         4.2|
+|2022-03-01 01:00:00|         3|      10.4|           169|         1.9|
+|2022-03-01 01:00:00|         4|      13.9|           170|         2.4|
+|2022-03-01 01:00:00|         5|      12.1|           165|         4.0|
+```
+
+### 3.2 Enriched Layer
+```
++----------+-------------------+----------+--------------+------------+----------+------------+-----------+-----------+----------+
+|turbine_id|          timestamp|wind_speed|wind_direction|power_output|mean_power|stddev_power|upper_bound|lower_bound|is_anomaly|
++----------+-------------------+----------+--------------+------------+----------+------------+-----------+-----------+----------+
+|         1|2022-03-01 00:00:00|      11.8|           169|         2.7|       3.0|         1.0|        5.0|        1.0|     false|
+|         2|2022-03-01 00:00:00|      11.6|            24|         2.2|       3.0|         1.0|        5.0|        1.0|     false|
+|         3|2022-03-01 00:00:00|      13.8|           335|         2.3|       3.0|         1.0|        5.0|        1.0|     false|
+|         4|2022-03-01 00:00:00|      12.8|           238|         1.9|       3.0|         1.0|        5.0|        1.0|     false|
+|         5|2022-03-01 00:00:00|      11.4|           103|         3.5|       3.0|         1.0|        5.0|        1.0|     false|
+|         1|2022-03-01 01:00:00|      11.6|           152|         4.4|       3.0|         1.0|        5.0|        1.0|     false|
+|         2|2022-03-01 01:00:00|      12.8|            35|         4.2|       3.0|         1.0|        5.0|        1.0|     false|
+|         3|2022-03-01 01:00:00|      10.4|           169|         1.9|       3.0|         1.0|        5.0|        1.0|     false|
+|         4|2022-03-01 01:00:00|      13.9|           170|         2.4|       3.0|         1.0|        5.0|        1.0|     false|
+|         5|2022-03-01 01:00:00|      12.1|           165|         4.0|       3.0|         1.0|        5.0|        1.0|     false|
+```
+
+### 3.3 Curated Layer
+```
++----------+----------+---------+---------+---------+
+|turbine_id|      date|min_power|max_power|avg_power|
++----------+----------+---------+---------+---------+
+|        13|2022-03-25|      1.5|      4.4|      3.0|
+|        11|2022-03-26|      1.6|      4.5|      3.0|
+|        11|2022-03-03|      1.6|      4.5|      3.0|
+|        11|2022-03-09|      1.6|      4.4|      3.0|
+|        14|2022-03-30|      1.5|      4.4|      3.0|
+|        11|2022-03-07|      1.5|      4.5|      3.0|
+|        14|2022-03-18|      1.6|      4.5|      3.0|
+|        14|2022-03-20|      1.6|      4.4|      3.0|
+|        12|2022-03-23|      1.5|      4.4|      3.0|
+|        15|2022-03-24|      1.8|      4.4|      3.0|
+|        13|2022-03-07|      1.7|      4.4|      3.0|
+|        11|2022-03-24|      1.8|      4.3|      3.0|
+|        15|2022-03-19|      1.5|      4.3|      3.0|
+|        12|2022-03-25|      1.7|      4.5|      3.0|
+```
