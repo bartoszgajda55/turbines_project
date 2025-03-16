@@ -4,10 +4,6 @@ resources:
     turbines_job:
       name: turbines_job
 
-      email_notifications:
-        on_failure:
-          - bartek@bartekg55gmail.onmicrosoft.com
-
       tasks:
         - task_key: raw_to_bronze
           # job_cluster_key: job_cluster
