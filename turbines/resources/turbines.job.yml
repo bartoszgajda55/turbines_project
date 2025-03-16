@@ -15,7 +15,7 @@ resources:
             package_name: turbines
             entry_point: raw_to_standardized
             parameters:
-              - ${var.CATALOG}
+              - ${var.catalog}
           libraries:
             - whl: ${var.wheel_path}
 
@@ -27,7 +27,7 @@ resources:
             package_name: turbines
             entry_point: standardized_to_enriched
             parameters:
-              - ${var.CATALOG}
+              - ${var.catalog}
           libraries:
             - whl: ${var.wheel_path}
 
@@ -39,7 +39,7 @@ resources:
             package_name: turbines
             entry_point: enriched_to_curated
             parameters:
-              - ${var.CATALOG}
+              - ${var.catalog}
           libraries:
             - whl: ${var.wheel_path}
 

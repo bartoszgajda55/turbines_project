@@ -36,6 +36,7 @@ jobs:
           CLUSTER_ID: ${{ vars.CLUSTER_ID }}
           DATABRICKS_HOST: ${{ vars.DATABRICKS_HOST }}
           DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+          CATALOG: ${{ vars.CATALOG }}
 
       - name: Install Databricks CLI
         uses: databricks/setup-cli@v0.243.0
@@ -51,9 +52,10 @@ jobs:
           WHEEL_NAME=$(basename $WHEEL_PATH)
           databricks fs cp --overwrite "$WHEEL_PATH" "dbfs:${{ vars.DATABRICKS_WHEEL_VOLUME }}"
           if [[ "${{github.ref}}" =~ ^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            databricks bundle deploy -t prod --var="wheel_path=${{ vars.DATABRICKS_WHEEL_VOLUME }}/$WHEEL_NAME"
+            databricks bundle deploy -t prod --var="wheel_path=${{ vars.DATABRICKS_WHEEL_VOLUME }}/$WHEEL_NAME" --var="catalog=${{ vars.CATALOG }}"
           else
-            databricks bundle deploy -t dev --var="wheel_path=${{ vars.DATABRICKS_WHEEL_VOLUME }}/$WHEEL_NAME"
+            databricks bundle deploy -t dev --var="wheel_path=${{ vars.DATABRICKS_WHEEL_VOLUME }}/$WHEEL_NAME" --var="catalog=${{ vars.CATALOG }}"
           fi
         env:
           DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+          CATALOG: ${{ vars.CATALOG }}

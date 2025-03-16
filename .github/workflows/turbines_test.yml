@@ -35,3 +35,4 @@ jobs:
           CLUSTER_ID: ${{ vars.CLUSTER_ID }}
           DATABRICKS_HOST: ${{ vars.DATABRICKS_HOST }}
           DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+          CATALOG: ${{ vars.CATALOG }}
