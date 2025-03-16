@@ -6,7 +6,7 @@ resources:
 
       trigger:
         file_arrival:
-          url: "/Volumes/${var.catalog}/raw/input_turbines/*.csv"
+          url: "/Volumes/${var.catalog}/raw/input_turbines/"
           min_time_between_triggers_seconds: 43200 # 12 hours
           wait_after_last_change_seconds: 600 # 10 minutes
 
