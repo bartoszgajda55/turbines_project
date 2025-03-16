@@ -36,7 +36,7 @@ def test_id() -> str:
     """
     Generate a unique ID for testing purposes.
     """
-    return "test_" + str(uuid.uuid4())
+    return "test_" + str(uuid.uuid4().hex)
 
 @pytest.fixture(scope="session")
 def csv_test_dir(spark: SparkSession) -> str:
@@ -57,6 +57,19 @@ def delta_test_dir(spark: SparkSession) -> str:
         raise ValueError("CATALOG not found in environment - cannot create test tables.")
     assert spark.catalog.databaseExists(f"{catalog}.test"), "Database 'test' not found in catalog."
     return f"/Volumes/{catalog}/test/delta"
+
+@pytest.fixture(scope="session")
+def table_test_dir(spark: SparkSession) -> str:
+    """
+    Return the schema/database, used for testing tables. This will not return a table name, as this will be
+    constant for sample one, and dynamic for these created by test session.
+    """
+    if not (catalog := os.getenv("CATALOG")):
+        raise ValueError("CATALOG not found in environment - cannot create test tables.")
+    assert spark.catalog.databaseExists(f"{catalog}.test"), "Database 'test' not found in catalog."
+    return f"{catalog}.test"
+
+
 
 @pytest.fixture(scope="session")
 def setup_testbed(spark: SparkSession, delta_test_dir: str):

@@ -14,22 +14,22 @@ def get_catalog_from_params() -> str:
 
 class Processor(ABC):
     @abstractmethod
-    def process(self, input_repo: Repository, output_repo: Repository):
+    def process(self, spark: SparkSession, input_repo: Repository, output_repo: Repository):
         pass
 
 class RawToStandardized(Processor):
-    def process(self, input_repo: Repository, output_repo: Repository):
-        df = input_repo.read()
+    def process(self, spark: SparkSession, input_repo: Repository, output_repo: Repository):
+        df = input_repo.read(spark=spark)
         output_repo.save(df)
 
 class StandardizedToEncriched(Processor):
-    def process(self, input_repo: Repository, output_repo: Repository):
-        df = input_repo.read()
+    def process(self, spark: SparkSession, input_repo: Repository, output_repo: Repository):
+        df = input_repo.read(spark=spark)
         output_repo.save(df)
 
 class EnrichedToCurated(Processor):
-    def process(self, input_repo: Repository, output_repo: Repository):
-        df = input_repo.read()
+    def process(self, spark: SparkSession, input_repo: Repository, output_repo: Repository):
+        df = input_repo.read(spark=spark)
         output_repo.save(df)
 
 
@@ -37,6 +37,7 @@ def raw_to_standardized():
     catalog = get_catalog_from_params()
     processor = RawToStandardized()
     processor.process(
+        get_spark(),
         CsvRepository(path=f"/Volumes/{catalog}/raw/input_turbines/*.csv", header=True), 
         DeltaRepository(path=f"/Volumes/{catalog}/standardized/turbines")
     )
@@ -45,6 +46,7 @@ def standardized_to_enriched():
     catalog = get_catalog_from_params()
     processor = StandardizedToEncriched()
     processor.process(
+        get_spark(),
         DeltaRepository(path=f"/Volumes/{catalog}/standardized/turbines"),
         TableRepository(qualified_name=f"{catalog}.enriched.turbines")
     )
@@ -53,6 +55,7 @@ def enriched_to_curated():
     catalog = get_catalog_from_params()
     processor = EnrichedToCurated()
     processor.process(
+        get_spark(),
         TableRepository(qualified_name=f"{catalog}.enriched.turbines"),
         TableRepository(qualified_name=f"{catalog}.curated.turbines")
     )
