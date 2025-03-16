@@ -34,7 +34,7 @@ class TestDeltaRepository:
     def test_read(self, spark, delta_test_dir):
         # Given
         path = Path(delta_test_dir) / "sample"
-        repository = DeltaRepository(path=path.as_posix())
+        repository = DeltaRepository(path=path.as_posix(), merge_condition="1 = 1")
         # When
         df = repository.read(spark)
         # Then
@@ -66,7 +66,7 @@ class TestDeltaRepository:
 class TestTableRepository:
     def test_read(self, spark, table_test_dir):
         # Given
-        repository = TableRepository(qualified_name=f"{table_test_dir}.table")
+        repository = TableRepository(qualified_name=f"{table_test_dir}.table", merge_condition="1 = 1")
         # When
         df = repository.read(spark)
         # Then
