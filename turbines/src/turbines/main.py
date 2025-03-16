@@ -51,7 +51,7 @@ class EnrichedToCurated(Processor):
     def process(self, spark: SparkSession, input_repo: Repository, output_repo: Repository):
         df = input_repo.read(spark=spark)
         # Convert timestamp to date for daily aggregation
-        df = df.withColumn("date", df.col("timestamp").cast("date"))
+        df = df.withColumn("date", df["timestamp"].cast("date"))
 
         # Group by turbine_id and date, then calculate statistics
         df = df.groupBy("turbine_id", "date").agg(
