@@ -50,11 +50,7 @@ jobs:
           WHEEL_PATH=$(ls dist/*.whl)
           WHEEL_NAME=$(basename $WHEEL_PATH)
           databricks fs cp --overwrite "$WHEEL_PATH" "dbfs:${{ vars.DATABRICKS_WHEEL_VOLUME }}"
-          echo "BASE_REF"
-          echo "${{github.base_ref}}"
-          echo "REF"
-          echo "${{github.ref}}"
-          if [[ "${{github.base_ref}}" == "main" || "${{github.ref}}" == "refs/heads/main" ]]; then
+          if [[ "${{github.ref}}" =~ ^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             databricks bundle deploy -t prod --var="wheel_path=${{ vars.DATABRICKS_WHEEL_VOLUME }}/$WHEEL_NAME"
           else
             databricks bundle deploy -t dev --var="wheel_path=${{ vars.DATABRICKS_WHEEL_VOLUME }}/$WHEEL_NAME"
