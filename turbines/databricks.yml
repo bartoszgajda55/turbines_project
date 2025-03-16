@@ -1,5 +1,3 @@
-# This is a Databricks asset bundle definition for turbines.
-# See https://docs.databricks.com/dev-tools/bundles/index.html for documentation.
 bundle:
   name: turbines
   uuid: a476a32b-0cca-4e71-992c-63fb4d6a1f96
@@ -7,12 +5,12 @@ bundle:
 include:
   - resources/*.yml
 
+variables:
+  wheel_path:
+    description: Path to .whl file containing the source code
+
 targets:
   dev:
-    # The default target uses 'mode: development' to create a development copy.
-    # - Deployed resources get prefixed with '[dev my_user_name]'
-    # - Any job schedules and triggers are paused by default.
-    # See also https://docs.databricks.com/dev-tools/bundles/deployment-modes.html.
     mode: development
     default: true
     workspace:
@@ -22,8 +20,7 @@ targets:
     mode: production
     workspace:
       host: https://adb-1402730492326749.9.azuredatabricks.net
-      # We explicitly deploy to /Workspace/Users/bartek@bartekg55gmail.onmicrosoft.com to make sure we only have a single copy.
-      root_path: /Workspace/Users/bartek@bartekg55gmail.onmicrosoft.com/.bundle/${bundle.name}/${bundle.target}
+      root_path: /Workspace/Shared/.bundle/${bundle.name}/${bundle.target}
     permissions:
       - user_name: bartek@bartekg55gmail.onmicrosoft.com
         level: CAN_MANAGE

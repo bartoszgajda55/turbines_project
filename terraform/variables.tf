@@ -27,14 +27,14 @@ variable "catalogs" {
   type = map(object({
     grants  = map(list(string))
     comment = string
-    schemas = map(object({
+    schemas = optional(map(object({
       grants  = map(list(string))
       comment = string
-      volumes = map(object({
+      volumes = optional(map(object({
         grants  = map(list(string))
         comment = string
-      }))
-    }))
+      })), {})
+    })), {})
   }))
   description = "Map of catalogs to be created"
 
