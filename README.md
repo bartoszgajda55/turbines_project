@@ -43,6 +43,17 @@ The solution supports incremental data processing through the use of Delta Lake'
 
 When saving data, the system checks if the target location (either a Delta table or a managed table) already exists. If it does not exist, the data is written as a new table. If the table does exist, a merge operation is performed. This merge operation updates existing records and inserts new records based on a specified condition, ensuring that only the incremental changes are applied. This method is implemented in both the Delta and managed table repositories, ensuring consistent incremental processing across different storage formats.
 
+### 1.4 Event-Based Triggering
+The data processing pipeline is triggered automatically through file arrival events in the raw data storage location. This event-driven architecture ensures:
+
+- **Online Processing**: Immediate data processing when new files arrive
+- **Resource Efficiency**: Compute resources are utilized only when needed
+- **Scalability**: Automatic handling of varying data volumes
+- **Error Recovery**: Failed processing attempts are automatically retried
+- **Monitoring**: Event logs for tracking processing status and latency
+
+The system uses Databricks File Event Trigger to monitor data storage and trigger workflows automatically. When new files arrive in the monitored locations, the trigger initiates the processing pipeline, enabling real-time data ingestion with configurable batch windows for optimal performance.
+
 
 ## 2. Infrastructure Setup
 In order to start using this project, first some infrastructure will be needed. The basic ones for working has already been defined in the folder `terraform` and can be deployed using the following commands:
