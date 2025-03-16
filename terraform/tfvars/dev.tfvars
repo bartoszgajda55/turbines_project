@@ -53,6 +53,26 @@ catalogs = {
         }
         comment = "Schema for curated data, which is enriched data, transformed to the final format, ready for consumption."
       }
+      "test" = {
+        grants = {
+          "account users" = ["USE_SCHEMA"]
+        }
+        comment = "Schema for test objects, used for Unit/Integration tests"
+        volumes = {
+          "csv" = {
+            grants = {
+              "account users" = ["READ_VOLUME"]
+            }
+            comment = "Volume for sample CSV"
+          }
+          "delta" = {
+            grants = {
+              "account users" = ["READ_VOLUME"]
+            }
+            comment = "Volume for sample Delta tables"
+          }
+        }
+      }
     }
   }
   "dc_turbines_prod_001" = {
