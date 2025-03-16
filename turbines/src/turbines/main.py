@@ -86,5 +86,5 @@ def enriched_to_curated():
     processor.process(
         get_spark(),
         TableRepository(qualified_name=f"{catalog}.enriched.turbines"),
-        TableRepository(qualified_name=f"{catalog}.curated.turbines", merge_condition="existing.timestamp = new.timestamp AND existing.turbine_id = new.turbine_id")
+        TableRepository(qualified_name=f"{catalog}.curated.turbines", merge_condition="existing.date = new.date AND existing.turbine_id = new.turbine_id")
     )
