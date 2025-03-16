@@ -1,6 +1,6 @@
 [project]
 name = "turbines"
-version = "0.2.0"
+dynamic = ["version"]
 description = "This a Turbine project - Databricks-based Data Solution using the best Software Engineering practices"
 authors = [
     { name = "Bartosz Gajda", email = "bartoszgajda55@outlook.com" }
@@ -11,8 +11,12 @@ dependencies = [
 ]
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "vcs"
+raw-options = { search_parent_directories = true }
 
 [dependency-groups]
 dev = [

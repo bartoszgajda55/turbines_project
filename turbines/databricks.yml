@@ -16,11 +16,11 @@ targets:
     workspace:
       host: https://adb-1402730492326749.9.azuredatabricks.net
 
-  # prod:
-  #   mode: production
-  #   workspace:
-  #     host: https://adb-1402730492326749.9.azuredatabricks.net
-  #     root_path: /Workspace/Users/bartek@bartekg55gmail.onmicrosoft.com/.bundle/${bundle.name}/${bundle.target}
-  #   permissions:
-  #     - user_name: bartek@bartekg55gmail.onmicrosoft.com
-  #       level: CAN_MANAGE
+  prod:
+    mode: production
+    workspace:
+      host: https://adb-1402730492326749.9.azuredatabricks.net
+      root_path: /Workspace/Shared/.bundle/${bundle.name}/${bundle.target}
+    permissions:
+      - user_name: bartek@bartekg55gmail.onmicrosoft.com
+        level: CAN_MANAGE
