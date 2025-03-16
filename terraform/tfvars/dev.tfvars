@@ -40,6 +40,14 @@ catalogs = {
           "account users" = ["USE_SCHEMA"]
         }
         comment = "Schema for storing standardized data, which is a raw data, transformed into Delta format."
+        volumes = {
+          "turbines" = {
+            grants = {
+              "account users" = ["READ_VOLUME"]
+            }
+            comment = "Volume for storing standardized Turbines data in Delta format."
+          }
+        }
       }
       "enriched" = {
         grants = {
@@ -75,7 +83,7 @@ catalogs = {
       }
     }
   }
-  "dc_turbines_prod_001" = {
+  "dc_turbines_prod_001" = { # This should be put in prod.tfvars, but given it's sample solution, this is acceptable
     grants = {
       "account users" = ["USE_CATALOG", "CREATE_SCHEMA"]
     }
@@ -105,7 +113,7 @@ catalogs = {
             grants = {
               "account users" = ["READ_VOLUME"]
             }
-            comment = "Volume for storing raw data for Turbines project"
+            comment = "Volume for storing raw data for Turbines project."
           }
         }
       }
@@ -114,6 +122,14 @@ catalogs = {
           "account users" = ["USE_SCHEMA"]
         }
         comment = "Schema for storing standardized data, which is a raw data, transformed into Delta format."
+        volumes = {
+          "turbines" = {
+            grants = {
+              "account users" = ["READ_VOLUME"]
+            }
+            comment = "Volume for storing standardized Turbines data in Delta format."
+          }
+        }
       }
       "enriched" = {
         grants = {

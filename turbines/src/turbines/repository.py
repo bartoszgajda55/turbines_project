@@ -23,3 +23,10 @@ class DeltaRepository(Repository):
     
     def save(self, df: DataFrame, path: str, **kwargs) -> None:
         df.write.format("delta").save(path, **kwargs)
+
+class TableRepository(Repository):
+    def read(self, spark: SparkSession, path: str, **kwargs) -> DataFrame:
+        return spark.read.table(path)
+    
+    def save(self, df: DataFrame, path: str, **kwargs) -> None:
+        df.write.saveAsTable(path, **kwargs)

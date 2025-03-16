@@ -9,11 +9,37 @@ resources:
           - bartek@bartekg55gmail.onmicrosoft.com
 
       tasks:
-        - task_key: main_task
+        - task_key: raw_to_bronze
           job_cluster_key: job_cluster
           python_wheel_task:
             package_name: turbines
-            entry_point: main
+            entry_point: raw_to_standardized
+            parameters:
+              - ${var.CATALOG}
+          libraries:
+            - whl: ${var.wheel_path}
+
+        - task_key: bronze_to_silver
+          depends_on:
+            - task_key: raw_to_bronze
+          job_cluster_key: job_cluster
+          python_wheel_task:
+            package_name: turbines
+            entry_point: standardized_to_enriched
+            parameters:
+              - ${var.CATALOG}
+          libraries:
+            - whl: ${var.wheel_path}
+
+        - task_key: silver_to_gold
+          depends_on:
+            - task_key: bronze_to_silver
+          job_cluster_key: job_cluster
+          python_wheel_task:
+            package_name: turbines
+            entry_point: enriched_to_curated
+            parameters:
+              - ${var.CATALOG}
           libraries:
             - whl: ${var.wheel_path}
 

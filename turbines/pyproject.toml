@@ -27,3 +27,8 @@ dev = [
     "databricks-connect>=16.2.0",
     "pytest>=8.3.5",
 ]
+
+[project.scripts]
+raw_to_standardized = "turbines.main:raw_to_standardized"
+standardized_to_enriched = "turbines.main:standardized_to_enriched"
+enriched_to_curated = "turbines.main:enriched_to_curated"
