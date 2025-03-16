@@ -8,6 +8,8 @@ include:
 variables:
   wheel_path:
     description: Path to .whl file containing the source code
+  catalog:
+    description: Catalog on which the job(s) should operate
 
 targets:
   dev:
